@@ -72,16 +72,20 @@ const Index = () => {
 
   // Handle marking a phase as complete
   const handlePhaseComplete = (phaseId) => {
-    setPhases(prev => prev.map((phase, idx, arr) => {
-      if (phase.id === phaseId) {
-        return { ...phase, status: "completed", progress: 100 };
-      }
-      // Unlock the next phase
-      if (idx === arr.findIndex(p => p.id === phaseId) + 1 && phase.status === "locked") {
-        return { ...phase, status: "unlocked" };
-      }
-      return phase;
-    }));
+    setPhases(prev => {
+      // Find the index of the completed phase
+      const idx = prev.findIndex(p => p.id === phaseId);
+      return prev.map((phase, i) => {
+        if (phase.id === phaseId) {
+          return { ...phase, status: "completed", progress: 100 };
+        }
+        // Unlock the next phase (only one phase at a time)
+        if (i === idx + 1 && phase.status === "locked") {
+          return { ...phase, status: "unlocked" };
+        }
+        return phase;
+      });
+    });
     // Award XP for phase completion
     const completedPhase = phases.find(p => p.id === phaseId);
     if (completedPhase) {
@@ -139,7 +143,9 @@ const Index = () => {
       case "monetization":
       case "feedback":
       case "scale": {
+        // Always get the latest phase object from phases state
         const currentPhase = phases.find(p => p.id === activeTab);
+        if (!currentPhase) return null;
         return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} />;
       }
       case "profile":

@@ -4,6 +4,7 @@ import { CheckCircle, Clock, Target, Users, DollarSign, MessageSquare, TrendingU
 
 const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete }) => {
   const [taskInputs, setTaskInputs] = useState({});
+  const [selectedTypes, setSelectedTypes] = useState({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(null);
 
   const handleTaskSubmit = (taskIdx, taskName, content) => {
@@ -66,8 +67,8 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
           const isSubmitted = completedTasks.includes(idx);
           const inputValue = taskInputs[idx] || '';
           const pdfFile = taskInputs[`pdf-${idx}`] || null;
-          const [selectedType, setSelectedType] = useState(submissionType);
-          // Use a closure to keep the selectedType per task
+          const selectedType = selectedTypes[idx] || submissionType;
+          const handleTypeChange = (type) => setSelectedTypes(prev => ({ ...prev, [idx]: type }));
           const renderSubmission = () => {
             if (selectedType === 'form') {
               return (
@@ -129,14 +130,14 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
                 <div className="submission-type-toggle">
                   <button
                     className={selectedType === 'form' ? 'active' : ''}
-                    onClick={() => setSelectedType('form')}
+                    onClick={() => handleTypeChange('form')}
                     type="button"
                   >Form</button>
                   <button
-                    className={selectedType === 'pdf' ? 'active' : ''}
-                    onClick={() => setSelectedType('pdf')}
+                    className={selectedType === 'file' ? 'active' : ''}
+                    onClick={() => handleTypeChange('file')}
                     type="button"
-                  >PDF</button>
+                  >File</button>
                 </div>
               )}
               {renderSubmission()}

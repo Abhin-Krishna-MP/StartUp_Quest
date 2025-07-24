@@ -7,15 +7,15 @@ const tabs = [
   { id: 'validation', label: 'Validation', icon: Target },
   { id: 'mvp', label: 'MVP', icon: Rocket },
   { id: 'launch', label: 'Launch', icon: TrendingUp },
-  { id: 'monetization', label: 'Monetization', icon: DollarSign },
   { id: 'feedback', label: 'Feedback & Iterate', icon: MessageSquare },
+  { id: 'monetization', label: 'Monetization', icon: DollarSign },
   { id: 'scale', label: 'Pitch & Scale', icon: Users },
   { id: 'profile', label: 'Profile', icon: UserIcon },
   { id: 'friends', label: 'Friends', icon: Users },
   { id: 'explore', label: 'Explore', icon: Compass }
 ];
 
-const phaseTabIds = ['ideation', 'validation', 'mvp', 'launch', 'monetization', 'feedback', 'scale'];
+const phaseTabIds = ['ideation', 'validation', 'mvp', 'launch', 'feedback', 'monetization', 'scale'];
 
 const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0 }) => {
   return (
