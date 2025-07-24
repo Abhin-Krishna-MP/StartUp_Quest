@@ -54,7 +54,7 @@ const PhaseCard = ({ title, description, status, progress, xpReward, onComplete,
           </div>
 
           {status === 'unlocked' && (
-            <button
+            <button 
               onClick={onComplete}
               className="btn-complete"
               disabled={!canMarkComplete}

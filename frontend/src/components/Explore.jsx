@@ -12,11 +12,13 @@ const Explore = ({ onUpvote }) => {
   const [showGuildManager, setShowGuildManager] = useState(false);
   const [showUserChat, setShowUserChat] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [detailsIdea, setDetailsIdea] = useState(null);
 
   const { users } = useUserData();
   const categories = ['all', 'tech', 'environment', 'health', 'fintech', 'education'];
 
-  const [ideas] = useState([
+  const [ideas, setIdeas] = useState([
     {
       id: '1',
       title: 'AI-Powered Sustainable Energy Optimizer',
@@ -58,6 +60,28 @@ const Explore = ({ onUpvote }) => {
     const matchesCategory = selectedCategory === 'all' || idea.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleUpvote = (id) => {
+    setIdeas(prevIdeas => prevIdeas.map(idea => {
+      if (idea.id !== id) return idea;
+      if (idea.hasUpvoted) {
+        return { ...idea, hasUpvoted: false, upvotes: idea.upvotes - 1 };
+      } else {
+        return { ...idea, hasUpvoted: true, upvotes: idea.upvotes + 1 };
+      }
+    }));
+    if (onUpvote) onUpvote(id);
+  };
+
+  const handleViewDetails = (idea) => {
+    setDetailsIdea(idea);
+    setShowDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setDetailsIdea(null);
+  };
 
   return (
     <div className="explore-container">
@@ -116,19 +140,19 @@ const Explore = ({ onUpvote }) => {
                 if (u) { setSelectedUser(u); setShowUserChat(true); }
               }}>
                 <MessageCircle size={14} /> by {idea.author}
-              </button>x``
+              </button>
               <div className="idea-stats">
                 <Eye size={14} /> {idea.views}
               </div>
             </div>
             <div className="idea-actions">
               <button
-                onClick={() => onUpvote(idea.id)}
+                onClick={() => handleUpvote(idea.id)}
                 className={`btn-upvote ${idea.hasUpvoted ? 'upvoted' : ''}`}
               >
                 <ThumbsUp size={16} /> {idea.upvotes}
               </button>
-              <button className="btn-outline-small">View Details</button>
+              <button className="btn-outline-small" onClick={() => handleViewDetails(idea)}>View Details</button>
             </div>
           </div>
         ))}
@@ -141,6 +165,22 @@ const Explore = ({ onUpvote }) => {
             <h3>Share Your Idea</h3>
             <p>Coming soon! You'll be able to share your startup ideas here.</p>
             <button onClick={() => setShowNewIdeaModal(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* Idea Details Modal */}
+      {showDetails && detailsIdea && (
+        <div className="modal-overlay" onClick={handleCloseDetails}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2>{detailsIdea.title}</h2>
+            <p><strong>Category:</strong> {detailsIdea.category}</p>
+            <p><strong>Author:</strong> {detailsIdea.author}</p>
+            <p><strong>Summary:</strong> {detailsIdea.summary}</p>
+            <p><strong>Upvotes:</strong> {detailsIdea.upvotes}</p>
+            <p><strong>Views:</strong> {detailsIdea.views}</p>
+            {detailsIdea.trending && <p><TrendingUp size={16} /> Trending</p>}
+            <button className="btn-outline" onClick={handleCloseDetails}>Close</button>
           </div>
         </div>
       )}

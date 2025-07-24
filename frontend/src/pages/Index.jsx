@@ -10,9 +10,10 @@ import { mockPhases, mockBadges, mockUser, mockFriends } from "../mockData";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [userLevel, setUserLevel] = useState(1);
-  const [userXP, setUserXP] = useState(150);
-  const [maxXP, setMaxXP] = useState(1000);
+  const [userProgress, setUserProgress] = useState(() => {
+    const saved = localStorage.getItem("startupQuestUserProgress");
+    return saved ? JSON.parse(saved) : { userLevel: 1, userXP: 0, maxXP: 112 };
+  });
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   // Load from localStorage or mockData
@@ -39,44 +40,56 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem("startupQuestUser", JSON.stringify(userStats));
   }, [userStats]);
+  useEffect(() => {
+    localStorage.setItem("startupQuestUserProgress", JSON.stringify(userProgress));
+  }, [userProgress]);
 
   // Handle marking a task as complete for a phase
   const handleTaskComplete = (phaseId, taskIdx) => {
-    setPhases(prev => prev.map(phase => {
-      if (phase.id !== phaseId) return phase;
-      const completedTasks = phase.completedTasks.includes(taskIdx)
-        ? phase.completedTasks
-        : [...phase.completedTasks, taskIdx];
-      const progress = Math.round((completedTasks.length / phase.tasks.length) * 100);
-      return { ...phase, completedTasks, progress };
-    }));
-    // Award XP for task completion
-    const phase = phases.find(p => p.id === phaseId);
-    if (phase && phase.tasks[taskIdx] && !phase.completedTasks.includes(taskIdx)) {
-      const taskXP = phase.tasks[taskIdx].xpReward || 0;
-      setUserXP(prevXP => {
-        let totalXP = prevXP + taskXP;
-        let newLevel = userLevel;
-        let newMaxXP = maxXP;
-        while (totalXP >= newMaxXP && newLevel < 10) {
-          totalXP -= newMaxXP;
-          newLevel += 1;
-          newMaxXP += 200;
+    setPhases(prevPhases => {
+      let awardedXP = 0;
+      const newPhases = prevPhases.map(phase => {
+        if (phase.id !== phaseId) return phase;
+        const alreadyCompleted = phase.completedTasks.includes(taskIdx);
+        const completedTasks = alreadyCompleted
+          ? phase.completedTasks
+          : [...phase.completedTasks, taskIdx];
+        const progress = Math.round((completedTasks.length / phase.tasks.length) * 100);
+        // Only award XP if not already completed
+        if (!alreadyCompleted && phase.tasks[taskIdx]) {
+          awardedXP = phase.tasks[taskIdx].xpReward || 0;
         }
-        setUserLevel(newLevel);
-        setMaxXP(newMaxXP);
-        return totalXP;
+        return { ...phase, completedTasks, progress };
       });
-    }
+      // Award XP after updating phase state
+      if (awardedXP > 0) {
+        setUserProgress(prev => {
+          let { userXP, userLevel, maxXP } = prev;
+          let totalXP = userXP + awardedXP;
+          let newLevel = userLevel;
+          let newMaxXP = maxXP;
+          while (totalXP >= newMaxXP && newLevel < 10) {
+            totalXP -= newMaxXP;
+            newLevel += 1;
+            newMaxXP += 200;
+          }
+          return { userXP: totalXP, userLevel: newLevel, maxXP: newMaxXP };
+        });
+      }
+      return newPhases;
+    });
   };
 
   // Handle marking a phase as complete
   const handlePhaseComplete = (phaseId) => {
-    setPhases(prev => {
-      // Find the index of the completed phase
-      const idx = prev.findIndex(p => p.id === phaseId);
-      return prev.map((phase, i) => {
+    setPhases(prevPhases => {
+      let awardedXP = 0;
+      let completedPhaseTitle = null;
+      const idx = prevPhases.findIndex(p => p.id === phaseId);
+      const newPhases = prevPhases.map((phase, i) => {
         if (phase.id === phaseId) {
+          awardedXP = phase.xpReward || 0;
+          completedPhaseTitle = phase.title;
           return { ...phase, status: "completed", progress: 100 };
         }
         // Unlock the next phase (only one phase at a time)
@@ -85,35 +98,36 @@ const Index = () => {
         }
         return phase;
       });
+      // Award XP after updating phase state
+      if (awardedXP > 0) {
+        setUserProgress(prev => {
+          let { userXP, userLevel, maxXP } = prev;
+          let totalXP = userXP + awardedXP;
+          let newLevel = userLevel;
+          let newMaxXP = maxXP;
+          while (totalXP >= newMaxXP && newLevel < 10) {
+            totalXP -= newMaxXP;
+            newLevel += 1;
+            newMaxXP += 200;
+          }
+          return { userXP: totalXP, userLevel: newLevel, maxXP: newMaxXP };
+        });
+      }
+      // Update userStats and badges
+      if (completedPhaseTitle) {
+        setUserStats(prev => ({
+          ...prev,
+          completedPhases: [...prev.completedPhases.filter(id => id !== phaseId), completedPhaseTitle]
+        }));
+        setBadges(prevBadges => prevBadges.map(badge => {
+          if (badge.id === "first-steps" && userStats.completedPhases.length === 0) return { ...badge, earned: true };
+          if (badge.id === "validator" && phaseId === "validation") return { ...badge, earned: true };
+          if (badge.id === "builder" && phaseId === "mvp") return { ...badge, earned: true };
+          return badge;
+        }));
+      }
+      return newPhases;
     });
-    // Award XP for phase completion
-    const completedPhase = phases.find(p => p.id === phaseId);
-    if (completedPhase) {
-      const xpGained = completedPhase.xpReward || 0;
-      setUserXP(prevXP => {
-        let totalXP = prevXP + xpGained;
-        let newLevel = userLevel;
-        let newMaxXP = maxXP;
-        while (totalXP >= newMaxXP && newLevel < 10) {
-          totalXP -= newMaxXP;
-          newLevel += 1;
-          newMaxXP += 200;
-        }
-        setUserLevel(newLevel);
-        setMaxXP(newMaxXP);
-        return totalXP;
-      });
-      setUserStats(prev => ({
-        ...prev,
-        completedPhases: [...prev.completedPhases.filter(id => id !== phaseId), completedPhase.title]
-      }));
-      setBadges(prevBadges => prevBadges.map(badge => {
-        if (badge.id === "first-steps" && userStats.completedPhases.length === 0) return { ...badge, earned: true };
-        if (badge.id === "validator" && phaseId === "validation") return { ...badge, earned: true };
-        if (badge.id === "builder" && phaseId === "mvp") return { ...badge, earned: true };
-        return badge;
-      }));
-    }
   };
 
   const handleUpvote = (ideaId) => {
@@ -127,6 +141,7 @@ const Index = () => {
   };
 
   const renderTabContent = () => {
+    const { userLevel, userXP, maxXP } = userProgress;
     switch (activeTab) {
       case "dashboard":
         return <Dashboard
@@ -149,7 +164,13 @@ const Index = () => {
         return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} />;
       }
       case "profile":
-        return <Profile {...userStats} badges={badges} />;
+        return <Profile
+          {...userStats}
+          level={userLevel}
+          xp={userXP}
+          maxXP={maxXP}
+          badges={badges}
+        />;
       case "friends":
         return <FriendsCollabChat user={userStats} friends={mockFriends} />;
       case "chatbot":

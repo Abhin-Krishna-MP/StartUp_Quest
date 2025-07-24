@@ -1,7 +1,8 @@
 // Profile.jsx
 import { User as UserIcon, Award, Trophy, Target, TrendingUp } from 'lucide-react';
+import XPBar from "./XPBar";
 
-const Profile = ({ username, level, xp, badges, completedPhases, ideasShared, upvotesGiven }) => {
+const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasShared, upvotesGiven }) => {
   const earnedBadges = badges.filter(b => b.earned);
 
   const getCharacterAvatar = (level) => {
@@ -41,7 +42,7 @@ const Profile = ({ username, level, xp, badges, completedPhases, ideasShared, up
         <div className="profile-info">
           <h1 className="profile-username">{username}</h1>
           <p className="profile-level">Level {level} Entrepreneur</p>
-          <p className="profile-xp">{xp} Total XP Earned</p>
+          <XPBar currentXP={xp} maxXP={maxXP} level={level} />
         </div>
       </div>
 
