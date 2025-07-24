@@ -1863,3 +1863,24 @@ body {
   margin-bottom: 6px;
   margin-top: 2px;
 }
+
+.submission-type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.submission-type-toggle button {
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.97rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.submission-type-toggle button.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}

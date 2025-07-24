@@ -60,21 +60,17 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
       <div className="tasks-section">
         <h2>Phase Tasks</h2>
         {content.tasks.map((task, idx) => {
-          // Support new structure: task = { name, submissionType }
           const taskName = typeof task === 'string' ? task : task.name;
           const submissionType = typeof task === 'string' ? 'form' : task.submissionType;
+          const submissionOptions = task.submissionOptions || [submissionType];
           const isSubmitted = completedTasks.includes(idx);
           const inputValue = taskInputs[idx] || '';
           const pdfFile = taskInputs[`pdf-${idx}`] || null;
-          return (
-            <div key={idx} className="task-card">
-              <div className="task-header">
-                <div className={isSubmitted ? 'task-icon-completed' : 'task-icon'}>
-                  {isSubmitted ? <CheckCircle size={16} /> : <CheckCircle size={16} />}  
-                </div>
-                <h3 className="task-title">{taskName}</h3>
-              </div>
-              {submissionType === 'form' ? (
+          const [selectedType, setSelectedType] = useState(submissionType);
+          // Use a closure to keep the selectedType per task
+          const renderSubmission = () => {
+            if (selectedType === 'form') {
+              return (
                 <>
                   <textarea
                     value={inputValue}
@@ -91,11 +87,12 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
                     <Send size={16} /> {isSubmitted ? 'Completed' : 'Submit Task'}
                   </button>
                 </>
-              ) : (
+              );
+            } else {
+              return (
                 <>
                   <input
                     type="file"
-                    accept="application/pdf"
                     disabled={isSubmitted}
                     onChange={e => {
                       const file = e.target.files[0];
@@ -111,13 +108,38 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
                     disabled={!pdfFile || isSubmitted}
                     className="btn-submit"
                   >
-                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Upload PDF'}
+                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Upload File'}
                   </button>
                   {isSubmitted && pdfFile && (
                     <div className="pdf-preview">Uploaded: {pdfFile.name}</div>
                   )}
                 </>
+              );
+            }
+          };
+          return (
+            <div key={idx} className="task-card">
+              <div className="task-header">
+                <div className={isSubmitted ? 'task-icon-completed' : 'task-icon'}>
+                  {isSubmitted ? <CheckCircle size={16} /> : <CheckCircle size={16} />}  
+                </div>
+                <h3 className="task-title">{taskName}</h3>
+              </div>
+              {submissionOptions.length > 1 && !isSubmitted && (
+                <div className="submission-type-toggle">
+                  <button
+                    className={selectedType === 'form' ? 'active' : ''}
+                    onClick={() => setSelectedType('form')}
+                    type="button"
+                  >Form</button>
+                  <button
+                    className={selectedType === 'pdf' ? 'active' : ''}
+                    onClick={() => setSelectedType('pdf')}
+                    type="button"
+                  >PDF</button>
+                </div>
               )}
+              {renderSubmission()}
             </div>
           );
         })}

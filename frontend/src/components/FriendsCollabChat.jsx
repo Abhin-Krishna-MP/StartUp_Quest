@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Send, Users, Plus, Search } from "lucide-react";
-import { mockProfiles, mockGroups } from "../mockData";
+import { Send, Users, Plus, Search, MessageCircle } from "lucide-react";
+import { mockProfiles, mockGroups, mockFriends } from "../mockData";
 
 const FriendsCollabChat = ({ user }) => {
   const [groups, setGroups] = useState(mockGroups);
@@ -11,9 +11,15 @@ const FriendsCollabChat = ({ user }) => {
   const [memberSearch, setMemberSearch] = useState("");
   const [memberResults, setMemberResults] = useState([]);
   const [newMembers, setNewMembers] = useState([]);
+  // Friends for individual chat
+  const [friends] = useState(mockFriends);
+  const [selectedFriendId, setSelectedFriendId] = useState(null);
+  const [friendMessages, setFriendMessages] = useState({});
+  const [friendInput, setFriendInput] = useState("");
 
   // Group selection
-  const selectedGroup = groups.find(g => g.id === selectedGroupId);
+  const selectedGroup = selectedGroupId ? groups.find(g => g.id === selectedGroupId) : null;
+  const selectedFriend = selectedFriendId ? friends.find(f => f.id === selectedFriendId) : null;
 
   // Group message send
   const handleSend = () => {
@@ -26,7 +32,23 @@ const FriendsCollabChat = ({ user }) => {
     setInput("");
   };
 
-  // Group creation
+  // Private friend chat send
+  const handleFriendSend = () => {
+    if (!friendInput.trim() || !selectedFriend) return;
+    setFriendMessages(prev => {
+      const prevMsgs = prev[selectedFriend.id] || [];
+      return {
+        ...prev,
+        [selectedFriend.id]: [
+          ...prevMsgs,
+          { sender: 'You', text: friendInput, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+        ]
+      };
+    });
+    setFriendInput("");
+  };
+
+  // Group creation (unchanged)
   const handleMemberSearch = (e) => {
     const value = e.target.value;
     setMemberSearch(value);
@@ -62,6 +84,7 @@ const FriendsCollabChat = ({ user }) => {
     setGroupName("");
     setNewMembers([]);
     setSelectedGroupId(newGroup.id);
+    setSelectedFriendId(null);
   };
 
   return (
@@ -69,16 +92,31 @@ const FriendsCollabChat = ({ user }) => {
       <div className="group-list-sidebar">
         <div className="group-list-header">
           <h2><Users size={20} /> Groups</h2>
-          <button className="btn-create-group" onClick={() => setShowCreate(true)}><Plus size={16} /> New</button>
+          <button className="btn-create-group" onClick={() => { setShowCreate(true); setSelectedGroupId(null); setSelectedFriendId(null); }}><Plus size={16} /> New</button>
         </div>
         <ul className="group-list">
           {groups.map(group => (
             <li
               key={group.id}
               className={`group-list-item${group.id === selectedGroupId ? ' active' : ''}`}
-              onClick={() => setSelectedGroupId(group.id)}
+              onClick={() => { setSelectedGroupId(group.id); setSelectedFriendId(null); }}
             >
               <span className="group-name">{group.name}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="friends-list-header">
+          <h2><MessageCircle size={18} /> Friends</h2>
+        </div>
+        <ul className="group-list">
+          {friends.map(friend => (
+            <li
+              key={friend.id}
+              className={`group-list-item${friend.id === selectedFriendId ? ' active' : ''}`}
+              onClick={() => { setSelectedFriendId(friend.id); setSelectedGroupId(null); }}
+            >
+              <img src={friend.profilePic} alt={friend.name} className="friend-avatar" style={{ width: 24, height: 24, marginRight: 8 }} />
+              <span className="group-name">{friend.name}</span>
             </li>
           ))}
         </ul>
@@ -112,8 +150,36 @@ const FriendsCollabChat = ({ user }) => {
               <button onClick={handleSend} disabled={!input.trim()}><Send size={16} /></button>
             </div>
           </>
+        ) : selectedFriend ? (
+          <>
+            <div className="group-chat-header">
+              <h2>{selectedFriend.name}</h2>
+              <span className="group-members-count">Private Chat</span>
+            </div>
+            <div className="chat-messages">
+              {(friendMessages[selectedFriend.id] || []).map((msg, idx) => (
+                <div key={idx} className={`chat-row${msg.sender === 'You' ? ' own' : ''}`}>
+                  <div className="chat-bubble">
+                    <span className="chat-sender">{msg.sender}</span>
+                    <span className="chat-text">{msg.text}</span>
+                    <span className="chat-time">{msg.timestamp}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="chat-input-row">
+              <input
+                type="text"
+                value={friendInput}
+                onChange={e => setFriendInput(e.target.value)}
+                placeholder={`Message ${selectedFriend.name}...`}
+                onKeyDown={e => e.key === 'Enter' && handleFriendSend()}
+              />
+              <button onClick={handleFriendSend} disabled={!friendInput.trim()}><Send size={16} /></button>
+            </div>
+          </>
         ) : (
-          <div className="no-group-selected">Select a group to start chatting.</div>
+          <div className="no-group-selected">Select a group or friend to start chatting.</div>
         )}
       </div>
       {showCreate && (

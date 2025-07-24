@@ -6,10 +6,10 @@ export const mockPhases = [
     title: 'Ideation',
     description: 'Phase 1: Ideation',
     tasks: [
-      { name: 'Define problem', submissionType: 'form', xpReward: 30 },
-      { name: 'Research pain points', submissionType: 'form', xpReward: 30 },
-      { name: 'Explore existing solutions & identify gaps', submissionType: 'form', xpReward: 20 },
-      { name: 'Write a one-liner startup idea', submissionType: 'form', xpReward: 20 }
+      { name: 'Define problem', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Research pain points', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Explore existing solutions & identify gaps', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 20 },
+      { name: 'Write a one-liner startup idea', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 20 }
     ],
     tips: [
       'Start with a real problem you or others face.',
@@ -27,11 +27,11 @@ export const mockPhases = [
     title: 'Validation',
     description: 'Phase 2: Validation',
     tasks: [
-      { name: 'Create a Value Proposition Canvas', submissionType: 'form', xpReward: 30 },
-      { name: 'Build basic user persona', submissionType: 'form', xpReward: 30 },
-      { name: 'Run 3 user interviews', submissionType: 'form', xpReward: 30 },
-      { name: 'Identify early adopter segment', submissionType: 'form', xpReward: 30 },
-      { name: 'Draft a lean validation plan', submissionType: 'form', xpReward: 30 }
+      { name: 'Create a Value Proposition Canvas', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Build basic user persona', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Run 3 user interviews', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Identify early adopter segment', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Draft a lean validation plan', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Talk to real users, not just friends.',
@@ -49,11 +49,11 @@ export const mockPhases = [
     title: 'MVP (Minimum Viable Product)',
     description: 'Phase 3: MVP',
     tasks: [
-      { name: 'Sketch wireframe or UI mockups', submissionType: 'pdf', xpReward: 40 },
-      { name: 'Choose a tech stack or tools', submissionType: 'form', xpReward: 30 },
-      { name: 'Build MVP landing page or prototype', submissionType: 'form', xpReward: 40 },
-      { name: 'Collect feedback', submissionType: 'form', xpReward: 30 },
-      { name: 'Define 1 success metric', submissionType: 'form', xpReward: 30 }
+      { name: 'Sketch wireframe or UI mockups', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 40 },
+      { name: 'Choose a tech stack or tools', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Build MVP landing page or prototype', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 40 },
+      { name: 'Collect feedback', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Define 1 success metric', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Build only what’s necessary to test your core hypothesis.',
@@ -71,10 +71,10 @@ export const mockPhases = [
     title: 'Launch',
     description: 'Phase 4: Launch',
     tasks: [
-      { name: 'Plan a launch strategy', submissionType: 'form', xpReward: 30 },
-      { name: 'Publish on Product Hunt / Social Media', submissionType: 'form', xpReward: 30 },
-      { name: 'Gather initial feedback and web data', submissionType: 'form', xpReward: 30 },
-      { name: 'Measure user behaviors', submissionType: 'form', xpReward: 30 }
+      { name: 'Plan a launch strategy', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Publish on Product Hunt / Social Media', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Gather initial feedback and web data', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Measure user behaviors', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Prepare your launch assets in advance.',
@@ -92,10 +92,10 @@ export const mockPhases = [
     title: 'Feedback & Iterate',
     description: 'Phase 5: Feedback & Iterate',
     tasks: [
-      { name: 'Analyze usage metrics', submissionType: 'form', xpReward: 30 },
-      { name: 'Ship meaningful iterations', submissionType: 'form', xpReward: 30 },
-      { name: 'Write a changelog', submissionType: 'form', xpReward: 30 },
-      { name: 'Identify 1 retention hook', submissionType: 'form', xpReward: 30 }
+      { name: 'Analyze usage metrics', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Ship meaningful iterations', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Write a changelog', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Identify 1 retention hook', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Look for patterns in user feedback.',
@@ -113,10 +113,10 @@ export const mockPhases = [
     title: 'Monetization (Show Me the Money)',
     description: 'Phase 6: Monetization',
     tasks: [
-      { name: 'Define a business model', submissionType: 'form', xpReward: 30 },
-      { name: 'Test pricing with surveys', submissionType: 'form', xpReward: 30 },
-      { name: 'Simulate first revenue transactions', submissionType: 'form', xpReward: 30 },
-      { name: 'Create a revenue plan for 3 months', submissionType: 'form', xpReward: 30 }
+      { name: 'Define a business model', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Test pricing with surveys', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Simulate first revenue transactions', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Create a revenue plan for 3 months', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Start with a simple pricing model.',
@@ -134,11 +134,11 @@ export const mockPhases = [
     title: 'Pitch & Scale',
     description: 'Phase 7: Pitch & Scale',
     tasks: [
-      { name: 'Build pitch deck', submissionType: 'pdf', xpReward: 40 },
-      { name: 'Create a pitch video', submissionType: 'form', xpReward: 30 },
-      { name: 'Practice with peers/mentors', submissionType: 'form', xpReward: 30 },
-      { name: 'Define growth KPIs', submissionType: 'form', xpReward: 30 },
-      { name: 'Write a one-year vision plan', submissionType: 'form', xpReward: 30 }
+      { name: 'Build pitch deck', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 40 },
+      { name: 'Create a pitch video', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Practice with peers/mentors', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Define growth KPIs', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 },
+      { name: 'Write a one-year vision plan', submissionType: 'form', submissionOptions: ['form', 'file'], xpReward: 30 }
     ],
     tips: [
       'Tell a compelling story in your pitch.',
