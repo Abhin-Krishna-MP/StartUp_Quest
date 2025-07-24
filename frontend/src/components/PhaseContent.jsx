@@ -2,153 +2,42 @@
 import { useState } from "react";
 import { CheckCircle, Clock, Target, Users, DollarSign, MessageSquare, TrendingUp, Send } from "lucide-react";
 
-const PhaseContent = ({ phase }) => {
+const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete }) => {
   const [taskInputs, setTaskInputs] = useState({});
-  const [submittedTasks, setSubmittedTasks] = useState({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(null);
 
-  const handleTaskSubmit = (taskId, taskName, content) => {
-    setSubmittedTasks(prev => ({ ...prev, [taskId]: true }));
-    setTaskInputs(prev => ({ ...prev, [taskId]: '' }));
+  const handleTaskSubmit = (taskIdx, taskName, content) => {
+    if (typeof onTaskComplete === 'function') {
+      onTaskComplete(phase, taskIdx);
+    }
+    setTaskInputs(prev => ({ ...prev, [taskIdx]: '' }));
     setShowSuccessMessage(`Task "${taskName}" saved successfully!`);
     setTimeout(() => setShowSuccessMessage(null), 3000);
   };
 
-  const getPhaseContent = () => {
-    switch (phase) {
-      case 'validation':
-        return {
-          title: 'Idea Validation',
-          icon: Target,
-          description: 'Validate your startup idea with real customers',
-          tasks: [
-            'Conduct 20+ customer interviews',
-            'Create customer personas',
-            'Define problem-solution fit',
-            'Analyze market size and competition',
-            'Validate pricing assumptions'
-          ],
-          tips: [
-            'Ask open-ended questions to avoid bias',
-            'Focus on problems, not solutions',
-            'Look for patterns in customer responses',
-            'Test your assumptions, don\'t just confirm them'
-          ]
-        };
-
-      case 'mvp':
-        return {
-          title: 'Minimum Viable Product',
-          icon: Target,
-          description: 'Build and test your MVP with early users',
-          tasks: [
-            'Define core features',
-            'Create wireframes and mockups',
-            'Build MVP prototype',
-            'Recruit beta testers',
-            'Collect user feedback'
-          ],
-          tips: [
-            'Start with the simplest version possible',
-            'Focus on core value proposition',
-            'Use no-code tools when possible',
-            'Get feedback early and often'
-          ]
-        };
-
-      case 'launch':
-        return {
-          title: 'Product Launch',
-          icon: TrendingUp,
-          description: 'Launch your product to the market',
-          tasks: [
-            'Create launch strategy',
-            'Build landing page',
-            'Set up analytics',
-            'Execute marketing campaigns',
-            'Monitor launch metrics'
-          ],
-          tips: [
-            'Plan your launch timeline carefully',
-            'Have a backup plan ready',
-            'Engage with your community',
-            'Be ready to handle feedback'
-          ]
-        };
-
-      case 'monetization':
-        return {
-          title: 'Monetization',
-          icon: DollarSign,
-          description: 'Implement and optimize revenue streams',
-          tasks: [
-            'Choose revenue model',
-            'Set up payment systems',
-            'Create pricing strategy',
-            'Implement billing logic',
-            'Track financial metrics'
-          ],
-          tips: [
-            'Start with simple pricing',
-            'Test different price points',
-            'Focus on customer lifetime value',
-            'Monitor churn rates closely'
-          ]
-        };
-
-      case 'feedback':
-        return {
-          title: 'Feedback & Iterate',
-          icon: MessageSquare,
-          description: 'Collect feedback and improve your product',
-          tasks: [
-            'Set up feedback channels',
-            'Analyze user behavior',
-            'Prioritize feature requests',
-            'Implement improvements',
-            'Measure impact of changes'
-          ],
-          tips: [
-            'Listen more than you speak',
-            'Look for patterns in feedback',
-            'Not all feedback should be acted upon',
-            'Focus on user outcomes, not features'
-          ]
-        };
-
-      case 'scale':
-        return {
-          title: 'Pitch & Scale',
-          icon: Users,
-          description: 'Scale your business and attract investment',
-          tasks: [
-            'Create pitch deck',
-            'Define growth strategy',
-            'Build scalable systems',
-            'Network with investors',
-            'Prepare for funding rounds'
-          ],
-          tips: [
-            'Tell a compelling story',
-            'Focus on traction and metrics',
-            'Build relationships before you need money',
-            'Have a clear use of funds'
-          ]
-        };
-
-      default:
-        return {
-          title: 'Phase Content',
-          icon: Clock,
-          description: 'Content for this phase',
-          tasks: [],
-          tips: []
-        };
-    }
+  // Use phaseData for all content
+  const phaseIcons = {
+    ideation: Clock,
+    validation: Target,
+    mvp: Target,
+    launch: TrendingUp,
+    feedback: MessageSquare,
+    monetization: DollarSign,
+    scale: Users
+  };
+  const Icon = phaseIcons[phase] || Clock;
+  const content = {
+    title: phaseData?.title || '',
+    description: phaseData?.description || '',
+    tasks: phaseData?.tasks || [],
+    tips: phaseData?.tips || []
   };
 
-  const content = getPhaseContent();
-  const Icon = content.icon;
+  // Determine if all tasks are completed for this phase
+  const completedTasks = phaseData?.completedTasks || [];
+  const allTasksCompleted = content.tasks.length > 0 && completedTasks.length === content.tasks.length;
+  // Only enable the button if progress is 100%
+  const canMarkComplete = allTasksCompleted && phaseData && phaseData.progress === 100;
 
   return (
     <div className="phasecontent-container">
@@ -171,31 +60,64 @@ const PhaseContent = ({ phase }) => {
       <div className="tasks-section">
         <h2>Phase Tasks</h2>
         {content.tasks.map((task, idx) => {
-          const taskId = `${phase}-task-${idx}`;
-          const isSubmitted = submittedTasks[taskId];
-          const inputValue = taskInputs[taskId] || '';
+          // Support new structure: task = { name, submissionType }
+          const taskName = typeof task === 'string' ? task : task.name;
+          const submissionType = typeof task === 'string' ? 'form' : task.submissionType;
+          const isSubmitted = completedTasks.includes(idx);
+          const inputValue = taskInputs[idx] || '';
+          const pdfFile = taskInputs[`pdf-${idx}`] || null;
           return (
             <div key={idx} className="task-card">
               <div className="task-header">
                 <div className={isSubmitted ? 'task-icon-completed' : 'task-icon'}>
                   {isSubmitted ? <CheckCircle size={16} /> : <CheckCircle size={16} />}  
                 </div>
-                <h3 className="task-title">{task}</h3>
+                <h3 className="task-title">{taskName}</h3>
               </div>
-              <textarea
-                value={inputValue}
-                onChange={e => setTaskInputs(prev => ({ ...prev, [taskId]: e.target.value }))}
-                disabled={isSubmitted}
-                className="task-input"
-                placeholder={`Enter your progress for: ${task}`}
-              />
-              <button
-                onClick={() => handleTaskSubmit(taskId, task, inputValue)}
-                disabled={!inputValue.trim() || isSubmitted}
-                className="btn-submit"
-              >
-                <Send size={16} /> {isSubmitted ? 'Completed' : 'Submit Task'}
-              </button>
+              {submissionType === 'form' ? (
+                <>
+                  <textarea
+                    value={inputValue}
+                    onChange={e => setTaskInputs(prev => ({ ...prev, [idx]: e.target.value }))}
+                    disabled={isSubmitted}
+                    className="task-input"
+                    placeholder={`Enter your submission for: ${taskName}`}
+                  />
+                  <button
+                    onClick={() => handleTaskSubmit(idx, taskName, inputValue)}
+                    disabled={!inputValue.trim() || isSubmitted}
+                    className="btn-submit"
+                  >
+                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Submit Task'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    disabled={isSubmitted}
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      setTaskInputs(prev => ({ ...prev, [`pdf-${idx}`]: file }));
+                    }}
+                    className="task-input-file"
+                  />
+                  {pdfFile && !isSubmitted && (
+                    <div className="pdf-preview">Selected: {pdfFile.name}</div>
+                  )}
+                  <button
+                    onClick={() => handleTaskSubmit(idx, taskName, pdfFile)}
+                    disabled={!pdfFile || isSubmitted}
+                    className="btn-submit"
+                  >
+                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Upload PDF'}
+                  </button>
+                  {isSubmitted && pdfFile && (
+                    <div className="pdf-preview">Uploaded: {pdfFile.name}</div>
+                  )}
+                </>
+              )}
             </div>
           );
         })}
@@ -215,7 +137,17 @@ const PhaseContent = ({ phase }) => {
 
       {/* Actions */}
       <div className="actions-section">
-        <button className="btn-quest">Mark Phase Complete</button>
+        <button
+          className="btn-quest"
+          disabled={!canMarkComplete}
+          onClick={() => {
+            if (canMarkComplete && typeof onMarkPhaseComplete === 'function') {
+              onMarkPhaseComplete(phase);
+            }
+          }}
+        >
+          Mark Phase Complete
+        </button>
         <button className="btn-help">Get Help</button>
       </div>
     </div>

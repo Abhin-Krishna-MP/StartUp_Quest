@@ -1,6 +1,6 @@
 import { CheckCircle, Lock, Play, Star } from "lucide-react";
 
-const PhaseCard = ({ title, description, status, progress, xpReward, onComplete }) => {
+const PhaseCard = ({ title, description, status, progress, xpReward, onComplete, canMarkComplete, isCurrent, isPrevious }) => {
   const getCardClass = () => {
     switch (status) {
       case 'locked':
@@ -53,10 +53,11 @@ const PhaseCard = ({ title, description, status, progress, xpReward, onComplete 
             />
           </div>
 
-          {status === 'unlocked' && progress < 100 && (
-            <button 
+          {status === 'unlocked' && (
+            <button
               onClick={onComplete}
               className="btn-complete"
+              disabled={!canMarkComplete}
             >
               Mark Complete
             </button>

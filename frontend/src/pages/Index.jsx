@@ -3,8 +3,10 @@ import Navigation from "../components/Navigation";
 import Dashboard from "../components/Dashboard";
 import PhaseContent from "../components/PhaseContent";
 import Profile from "../components/Profile";
-import Chatbot from "../components/Chatbot";
+import FriendsCollabChat from "../components/FriendsCollabChat";
 import Explore from "../components/Explore";
+import Chatbot from "../components/Chatbot";
+import { mockPhases, mockBadges, mockUser, mockFriends } from "../mockData";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -13,92 +15,101 @@ const Index = () => {
   const [maxXP, setMaxXP] = useState(1000);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
-  const [phases, setPhases] = useState([
-    { id: "validation", title: "Idea Validation", description: "Validate your startup idea with real customers", status: "unlocked", progress: 60, xpReward: 200 },
-    { id: "mvp", title: "Build MVP", description: "Create your minimum viable product", status: "locked", progress: 0, xpReward: 300 },
-    { id: "launch", title: "Product Launch", description: "Launch your product to the market", status: "locked", progress: 0, xpReward: 400 },
-    { id: "monetization", title: "Monetization", description: "Implement revenue streams", status: "locked", progress: 0, xpReward: 350 },
-    { id: "feedback", title: "Feedback & Iterate", description: "Collect feedback and improve", status: "locked", progress: 0, xpReward: 250 },
-    { id: "scale", title: "Pitch & Scale", description: "Scale your business and get funding", status: "locked", progress: 0, xpReward: 500 }
-  ]);
-
-  const [badges, setBadges] = useState([
-    { id: "first-steps", name: "First Steps", description: "Complete your first phase", earned: false },
-    { id: "validator", name: "Idea Validator", description: "Complete the validation phase", earned: false },
-    { id: "builder", name: "MVP Builder", description: "Successfully build and launch your MVP", earned: false },
-    { id: "entrepreneur", name: "True Entrepreneur", description: "Complete all startup phases", earned: false },
-    { id: "community-member", name: "Community Member", description: "Share 5 ideas in the community", earned: false },
-    { id: "supporter", name: "Supportive Member", description: "Give 10 upvotes to community ideas", earned: false }
-  ]);
-
-  const [userStats, setUserStats] = useState({
-    username: "StartupFounder",
-    ideasShared: 2,
-    upvotesGiven: 7,
-    completedPhases: []
+  // Load from localStorage or mockData
+  const [phases, setPhases] = useState(() => {
+    const saved = localStorage.getItem("startupQuestPhases");
+    return saved ? JSON.parse(saved) : mockPhases;
+  });
+  const [badges, setBadges] = useState(() => {
+    const saved = localStorage.getItem("startupQuestBadges");
+    return saved ? JSON.parse(saved) : mockBadges;
+  });
+  const [userStats, setUserStats] = useState(() => {
+    const saved = localStorage.getItem("startupQuestUser");
+    return saved ? JSON.parse(saved) : mockUser;
   });
 
+  // Persist to localStorage
   useEffect(() => {
-    const savedData = localStorage.getItem("startupQuestData");
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setUserLevel(parsed.userLevel || 1);
-        setUserXP(parsed.userXP || 150);
-        setMaxXP(parsed.maxXP || 1000);
-        setPhases(parsed.phases || phases);
-        setBadges(parsed.badges || badges);
-        setUserStats(parsed.userStats || userStats);
-      } catch (error) {
-        console.error("Error loading saved data:", error);
-      }
-    }
-  }, []);
-
+    localStorage.setItem("startupQuestPhases", JSON.stringify(phases));
+  }, [phases]);
   useEffect(() => {
-    const dataToSave = {
-      userLevel,
-      userXP,
-      maxXP,
-      phases,
-      badges,
-      userStats
-    };
-    localStorage.setItem("startupQuestData", JSON.stringify(dataToSave));
-  }, [userLevel, userXP, maxXP, phases, badges, userStats]);
+    localStorage.setItem("startupQuestBadges", JSON.stringify(badges));
+  }, [badges]);
+  useEffect(() => {
+    localStorage.setItem("startupQuestUser", JSON.stringify(userStats));
+  }, [userStats]);
 
-  const handlePhaseComplete = (phaseId) => {
-    setPhases((prev) => prev.map((phase, index) => {
-      if (phase.id === phaseId) {
-        const updatedPhase = { ...phase, status: "completed", progress: 100 };
-        const newXP = userXP + phase.xpReward;
-        if (newXP >= maxXP) {
-          setUserLevel(prevLevel => prevLevel + 1);
-          setMaxXP(prevMax => prevMax + 200);
-          setUserXP(newXP - maxXP);
-        } else {
-          setUserXP(newXP);
+  // Handle marking a task as complete for a phase
+  const handleTaskComplete = (phaseId, taskIdx) => {
+    setPhases(prev => prev.map(phase => {
+      if (phase.id !== phaseId) return phase;
+      const completedTasks = phase.completedTasks.includes(taskIdx)
+        ? phase.completedTasks
+        : [...phase.completedTasks, taskIdx];
+      const progress = Math.round((completedTasks.length / phase.tasks.length) * 100);
+      return { ...phase, completedTasks, progress };
+    }));
+    // Award XP for task completion
+    const phase = phases.find(p => p.id === phaseId);
+    if (phase && phase.tasks[taskIdx] && !phase.completedTasks.includes(taskIdx)) {
+      const taskXP = phase.tasks[taskIdx].xpReward || 0;
+      setUserXP(prevXP => {
+        let totalXP = prevXP + taskXP;
+        let newLevel = userLevel;
+        let newMaxXP = maxXP;
+        while (totalXP >= newMaxXP && newLevel < 10) {
+          totalXP -= newMaxXP;
+          newLevel += 1;
+          newMaxXP += 200;
         }
+        setUserLevel(newLevel);
+        setMaxXP(newMaxXP);
+        return totalXP;
+      });
+    }
+  };
 
-        setUserStats(prev => ({
-          ...prev,
-          completedPhases: [...prev.completedPhases.filter(id => id !== phaseId), phase.title]
-        }));
-
-        setBadges(prevBadges => prevBadges.map(badge => {
-          if (badge.id === "first-steps" && userStats.completedPhases.length === 0) return { ...badge, earned: true };
-          if (badge.id === "validator" && phaseId === "validation") return { ...badge, earned: true };
-          if (badge.id === "builder" && phaseId === "mvp") return { ...badge, earned: true };
-          return badge;
-        }));
-
-        return updatedPhase;
+  // Handle marking a phase as complete
+  const handlePhaseComplete = (phaseId) => {
+    setPhases(prev => prev.map((phase, idx, arr) => {
+      if (phase.id === phaseId) {
+        return { ...phase, status: "completed", progress: 100 };
       }
-      if (index === prev.findIndex(p => p.id === phaseId) + 1 && phase.status === "locked") {
+      // Unlock the next phase
+      if (idx === arr.findIndex(p => p.id === phaseId) + 1 && phase.status === "locked") {
         return { ...phase, status: "unlocked" };
       }
       return phase;
     }));
+    // Award XP for phase completion
+    const completedPhase = phases.find(p => p.id === phaseId);
+    if (completedPhase) {
+      const xpGained = completedPhase.xpReward || 0;
+      setUserXP(prevXP => {
+        let totalXP = prevXP + xpGained;
+        let newLevel = userLevel;
+        let newMaxXP = maxXP;
+        while (totalXP >= newMaxXP && newLevel < 10) {
+          totalXP -= newMaxXP;
+          newLevel += 1;
+          newMaxXP += 200;
+        }
+        setUserLevel(newLevel);
+        setMaxXP(newMaxXP);
+        return totalXP;
+      });
+      setUserStats(prev => ({
+        ...prev,
+        completedPhases: [...prev.completedPhases.filter(id => id !== phaseId), completedPhase.title]
+      }));
+      setBadges(prevBadges => prevBadges.map(badge => {
+        if (badge.id === "first-steps" && userStats.completedPhases.length === 0) return { ...badge, earned: true };
+        if (badge.id === "validator" && phaseId === "validation") return { ...badge, earned: true };
+        if (badge.id === "builder" && phaseId === "mvp") return { ...badge, earned: true };
+        return badge;
+      }));
+    }
   };
 
   const handleUpvote = (ideaId) => {
@@ -114,26 +125,30 @@ const Index = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard userLevel={userLevel} userXP={userXP} maxXP={maxXP} phases={phases} onPhaseComplete={handlePhaseComplete} />;
+        return <Dashboard
+          userLevel={userLevel}
+          userXP={userXP}
+          maxXP={maxXP}
+          phases={phases}
+          onPhaseComplete={handlePhaseComplete}
+        />;
+      case "ideation":
       case "validation":
       case "mvp":
       case "launch":
       case "monetization":
       case "feedback":
-      case "scale":
-        return <PhaseContent phase={activeTab} />;
+      case "scale": {
+        const currentPhase = phases.find(p => p.id === activeTab);
+        return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} />;
+      }
       case "profile":
-        return <Profile {...userStats} level={userLevel} xp={userXP} badges={badges} />;
+        return <Profile {...userStats} badges={badges} />;
+      case "friends":
+        return <FriendsCollabChat user={userStats} friends={mockFriends} />;
       case "chatbot":
-        return (
-          <div className="tab-box">
-            <h1>Startup Mentor Chatbot</h1>
-            <p>Click the floating chat button to start a conversation with your AI mentor!</p>
-            <div className="chat-info-box">
-              <p>The chatbot is available in the bottom-right corner of your screen.</p>
-            </div>
-          </div>
-        );
+        // The tab is for legacy, but the floating button is the main entry point
+        return null;
       case "explore":
         return <Explore onUpvote={handleUpvote} />;
       default:
@@ -146,11 +161,21 @@ const Index = () => {
     }
   };
 
+  // Find the current phase (first unlocked)
+  const currentPhaseIndex = phases.findIndex(p => p.status === 'unlocked');
+
   return (
     <div className="app">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        phases={phases}
+        currentPhaseIndex={currentPhaseIndex}
+      />
       <main>{renderTabContent()}</main>
-      <Chatbot isOpen={isChatbotOpen} onToggle={() => setIsChatbotOpen(!isChatbotOpen)} />
+      {/* FriendsCollabChat is rendered as a tab, not a floating button */}
+      {/* Floating Chatbot button and modal */}
+      <Chatbot isOpen={isChatbotOpen} onToggle={() => setIsChatbotOpen(open => !open)} />
     </div>
   );
 };

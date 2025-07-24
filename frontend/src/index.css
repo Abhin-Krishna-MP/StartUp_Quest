@@ -1464,3 +1464,402 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* FriendsCollabChat styles */
+.friends-collab-chat-container {
+  display: flex;
+  gap: 32px;
+  max-width: 900px;
+  margin: 32px auto;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 32px;
+}
+.friends-list {
+  min-width: 200px;
+  border-right: 1px solid var(--border);
+  padding-right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.friends-list h2 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.friend-avatar {
+  font-size: 1.5rem;
+}
+.friend-name {
+  font-weight: 500;
+}
+.online {
+  color: var(--secondary);
+  margin-left: 4px;
+}
+.offline {
+  color: var(--muted-foreground);
+  margin-left: 4px;
+}
+.collab-chat-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.collab-chat-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.chat-messages {
+  flex: 1;
+  min-height: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--muted);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.chat-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.chat-row.own {
+  flex-direction: row-reverse;
+}
+.chat-avatar {
+  font-size: 1.4rem;
+  margin-bottom: -4px;
+}
+.chat-bubble {
+  background: var(--card-foreground);
+  color: var(--background);
+  border-radius: 12px;
+  padding: 10px 16px;
+  min-width: 80px;
+  max-width: 320px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chat-row.own .chat-bubble {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  align-items: flex-end;
+}
+.chat-sender {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.chat-text {
+  font-size: 1rem;
+  margin: 2px 0;
+}
+.chat-time {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  align-self: flex-end;
+}
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.chat-input-row input[type="text"] {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input-row input[type="text"]:focus {
+  border-color: var(--primary);
+}
+.chat-input-row button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-input-row button:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
+/* FriendsCollabChat search bar and results */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.search-bar input[type="text"] {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-bar input[type="text"]:focus {
+  border-color: var(--primary);
+}
+.search-results {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 6px 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.search-result-item:hover {
+  background: var(--muted);
+}
+.btn-add-friend {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.2s;
+}
+.btn-add-friend:hover {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+.friend-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  background: var(--muted);
+  display: inline-block;
+}
+
+/* WhatsApp-style group chat sidebar and modal */
+.group-list-sidebar {
+  min-width: 220px;
+  border-right: 1px solid var(--border);
+  padding-right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.group-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.btn-create-group {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s;
+}
+.btn-create-group:hover {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+.group-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.group-list-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 4px;
+  transition: background 0.15s;
+}
+.group-list-item.active, .group-list-item:hover {
+  background: var(--muted);
+}
+.group-name {
+  font-size: 1.05rem;
+}
+.collab-chat-section .group-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.group-members-count {
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+}
+.no-group-selected {
+  color: var(--muted-foreground);
+  font-size: 1.1rem;
+  text-align: center;
+  margin-top: 80px;
+}
+/* Modal for group creation */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 32px 24px;
+  min-width: 340px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 6px;
+}
+.modal-member-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-search-results {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 6px 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.modal-search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.modal-search-result-item:hover {
+  background: var(--muted);
+}
+.modal-members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.modal-member-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--muted);
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 0.97rem;
+}
+.btn-remove-member {
+  background: none;
+  border: none;
+  color: var(--destructive);
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-left: 2px;
+}
+.btn-create-group-final {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.btn-create-group-final:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
+/* PDF upload styles for PhaseContent */
+.task-input-file {
+  margin: 8px 0 8px 0;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 1rem;
+}
+.pdf-preview {
+  font-size: 0.97rem;
+  color: var(--secondary);
+  margin-bottom: 6px;
+  margin-top: 2px;
+}

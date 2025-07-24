@@ -15,6 +15,18 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
   const completedCount = phases.filter(p => p.status === 'completed').length;
   const unlockedCount = phases.filter(p => p.status === 'unlocked').length;
 
+  // Find the current phase (first unlocked and not completed)
+  const currentPhaseIndex = phases.findIndex(p => p.status === 'unlocked');
+
+  // Helper to determine if a phase is lockable
+  const isPhaseLocked = (idx) => idx > currentPhaseIndex;
+  const isPhaseCurrent = (idx) => idx === currentPhaseIndex;
+  const isPhasePrevious = (idx) => idx < currentPhaseIndex;
+
+  // Helper to determine if all tasks are complete for a phase (simulate for now)
+  // In a real app, you would pass this info from parent or global state
+  const arePhaseTasksComplete = (phase) => phase.progress === 100;
+
   return (
     <div className="dashboard-container">
       {/* Celebration Animation */}
@@ -60,15 +72,22 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
 
       {/* Phase Cards */}
       <div className="phases-grid">
-        {phases.map((phase) => (
+        {phases.map((phase, idx) => (
           <PhaseCard
             key={phase.id}
             title={phase.title}
             description={phase.description}
-            status={phase.status}
+            status={isPhaseLocked(idx) ? 'locked' : phase.status}
             progress={phase.progress}
             xpReward={phase.xpReward}
-            onComplete={() => handlePhaseComplete(phase.id)}
+            onComplete={() => {
+              if (isPhaseCurrent(idx) && arePhaseTasksComplete(phase)) {
+                handlePhaseComplete(phase.id);
+              }
+            }}
+            canMarkComplete={isPhaseCurrent(idx) && arePhaseTasksComplete(phase)}
+            isCurrent={isPhaseCurrent(idx)}
+            isPrevious={isPhasePrevious(idx)}
           />
         ))}
       </div>

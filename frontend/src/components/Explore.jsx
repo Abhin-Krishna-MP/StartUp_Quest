@@ -116,7 +116,7 @@ const Explore = ({ onUpvote }) => {
                 if (u) { setSelectedUser(u); setShowUserChat(true); }
               }}>
                 <MessageCircle size={14} /> by {idea.author}
-              </button>
+              </button>x``
               <div className="idea-stats">
                 <Eye size={14} /> {idea.views}
               </div>

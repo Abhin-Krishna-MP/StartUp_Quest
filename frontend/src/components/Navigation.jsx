@@ -1,8 +1,9 @@
 // Navigation.jsx
-import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users } from "lucide-react";
+import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users, Clock, Lock } from "lucide-react";
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
+  { id: 'ideation', label: 'Ideation', icon: Clock },
   { id: 'validation', label: 'Validation', icon: Target },
   { id: 'mvp', label: 'MVP', icon: Rocket },
   { id: 'launch', label: 'Launch', icon: TrendingUp },
@@ -10,24 +11,37 @@ const tabs = [
   { id: 'feedback', label: 'Feedback & Iterate', icon: MessageSquare },
   { id: 'scale', label: 'Pitch & Scale', icon: Users },
   { id: 'profile', label: 'Profile', icon: UserIcon },
-  { id: 'chatbot', label: 'Chatbot', icon: Bot },
+  { id: 'friends', label: 'Friends', icon: Users },
   { id: 'explore', label: 'Explore', icon: Compass }
 ];
 
-const Navigation = ({ activeTab, onTabChange }) => {
+const phaseTabIds = ['ideation', 'validation', 'mvp', 'launch', 'monetization', 'feedback', 'scale'];
+
+const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0 }) => {
   return (
     <nav className="navigation">
       <div className="nav-items">
         {tabs.map(({ id, label, icon: Icon }) => {
+          const isPhaseTab = phaseTabIds.includes(id);
+          let isLocked = false;
+          if (isPhaseTab) {
+            const idx = phaseTabIds.indexOf(id);
+            isLocked = idx > currentPhaseIndex;
+          }
           const isActive = activeTab === id;
           return (
             <button
               key={id}
-              onClick={() => onTabChange(id)}
+              onClick={() => {
+                if (!isLocked) onTabChange(id);
+              }}
               className={`nav-tab ${isActive ? 'active' : ''}`}
+              disabled={isLocked}
+              style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               <Icon className="nav-icon" />
               <span className="nav-label">{label}</span>
+              {isLocked && <Lock className="nav-lock-icon" size={14} style={{ marginLeft: 4 }} />}
             </button>
           );
         })}
